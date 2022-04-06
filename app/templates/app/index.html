@@ -11,32 +11,56 @@
     </head>
     <body>
 
+        <textarea id="chat-log" cols="100" rows="20"></textarea><br>
+        <input id="chat-message-input" type="text" size="100"><br>
+        <input id="chat-message-submit" type="button" value="Send">
+        {% comment %} using this loc we can use this groupname within javascript. {% endcomment %}
+        {{groupname|json_script:"group-name"}}  
        
         <script>
-        var ws = new WebSocket('ws://localhost:8000/ws/sc/')  
+        const groupName=JSON.parse(document.getElementById('group-name').textContent)  //string to object
+        console.log(groupName)
+        {% comment %} var ws = new WebSocket('ws://localhost:8000/ws/ac/')   {% endcomment %}
+        var ws = new WebSocket('ws://'
+        + window.location.host 
+        + '/ws/sc/' 
+        + groupName 
+        +'/') 
+
 
         ws.onopen = function () {
-            console.log(('WebSocket connetion open from front end.....'))
-            ws.send('Hi Message form client....')
+            console.log('WebSocket connetion open from front end.....')
+            
         }
 
         {% comment %}  this property is run when msg reived from client  {% endcomment %}
         ws.onmessage = function (event) {
             console.log("EVENT...",event)
             console.log('Message received from server.....',event.data)
-            console.log("type of event data is...",typeof(event.data))
+            console.log('type of WebSocket error occured..........',typeof(event.data))
+            const data=JSON.parse(event.data)   //string to js object
+            console.log('Actual data...',data)
+            document.querySelector('#chat-log').value +=(data.msg + '\n')
 
-            var data=JSON.parse(event.data)
-            console.log("type of event data is...",typeof(data))
-            document.getElementById("ct").innerText=event.data
-            
         }
         ws.onerror = function (event) {
-            console.log(('WebSocket error occured..........',event))
+            console.log('WebSocket error occured..........',event)
+            
+            
         }
         ws.onclose = function (event) {
             console.log(('WebSocket connection closed.........',event))
-        }
+        };
+
+        document.getElementById('chat-message-submit').onclick = 
+        function(event){
+            const messageInputDom=document.getElementById('chat-message-input')
+            const message=messageInputDom.value
+            ws.send(JSON.stringify({   //js object to string
+                'msg':message
+            })) 
+        messageInputDom.value=''    
+        }  
     
         </script>
     </body>
