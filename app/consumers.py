@@ -1,6 +1,8 @@
 from channels.consumer import AsyncConsumer,SyncConsumer
 from channels.exceptions import StopConsumer
 from asgiref.sync import async_to_sync
+import json
+from .models import *
 
 
 
@@ -10,7 +12,7 @@ class MySyncConsumer(SyncConsumer):
         print("channel layer.........",self.channel_layer)  #get default channel layer from a project.
         print("channel name.........",self.channel_name) 
 
-        self.group_name=self.scope['url_route']['kwargs']['GroupName']
+        self.group_name=self.scope['url_route']['kwargs']['GroupName']  # get a group name
         print(self.group_name)
 
         async_to_sync(self.channel_layer.group_add)(self.group_name,self.channel_name) 
@@ -22,7 +24,16 @@ class MySyncConsumer(SyncConsumer):
     def websocket_receive(self, event):  
         print("websocket Received from client.......",event)  
         print("websocket Received from client.......",event['text'])
-       
+
+        data=json.loads(event['text'])  #convert string to python dict.
+        print('Actual message',data['msg'])
+
+        group=Group.objects.get(name=self.group_name)  #find group object
+
+        #create a new chat object
+        chat=Chat(content=data['msg'],group=group)
+        chat.save()
+        
         async_to_sync(self.channel_layer.group_send)(self.group_name,{
             'type':'chat.message',
             'message':event['text']
