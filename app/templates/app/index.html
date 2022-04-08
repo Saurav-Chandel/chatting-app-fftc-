@@ -39,12 +39,15 @@
 
         {% comment %}  this property is run when msg reived from client  {% endcomment %}
         ws.onmessage = function (event) {
-            console.log("EVENT...",event)
-            console.log('Message received from server.....',event.data)
-            console.log('type of WebSocket error occured..........',typeof(event.data))
+            console.log("EVENT...",event)           ////MessageEvent {isTrusted: true, data: '{"msg": "hello", "user": "admin"}', origin: 'ws://localhost:8000', lastEventId: '', source: null, …}
+            console.log('Message received from server.....',event.data)     // //Message received from server..... {"msg": "hello", "user": "admin"}
+            console.log('type of Message received from server..........',typeof(event.data))    //type of Message received from server.......... string
             const data=JSON.parse(event.data)   //string to js object
-            console.log('Actual data...',data)
-            document.querySelector('#chat-log').value +=(data.msg + '\n')
+            console.log('Type of Parsed data...',typeof(data))    //Type of Parsed data... object
+            console.log('Parsed data...',data)                   //Parsed data... {msg: 'hello', user: 'admin'}
+            console.log('Actual data...',data.msg)              //Actual data... hello
+            console.log('username...',data.user)              //Actual data... admin
+            document.querySelector('#chat-log').value +=(data.user + ':' + data.msg + '\n')
 
         }
         ws.onerror = function (event) {

@@ -5,4 +5,7 @@ from django.urls import re_path
 websocket_urlpattrens=[
      path('ws/sc/<str:GroupName>/',consumers.MySyncConsumer.as_asgi()),
      path('ws/ac/',consumers.MyAsyncConsumer.as_asgi()),
+
+     path('ws/wsc/',consumers.MyWebSocketConsumer.as_asgi()),
+     path('ws/asc/',consumers.MysyncWebSocketConsumer.as_asgi())
 ]
